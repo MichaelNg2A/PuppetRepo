@@ -1,5 +1,27 @@
 #/bin/bash
-
+############################################################
+#                                                          #
+# Filename:	installngix.sh                             #
+# Author:	Michael Ng                                 #
+# Last Update:	06/05/2014                                 #
+# Version:	1.0                                        #
+#                                                          #
+# Usage:	installngix.sh [Host1] [Host2] [...]       #
+#                                                          #
+# This shell script will take any number of hosts in as    #
+# arguments and perform the following tasks as needed:     #
+#                                                          #
+# 1.) Install nginx server.                                #
+# 2.) Change the listening port to 8000/tcp.               #
+# 3.) Update iptables to allow 8000/tcp inbound.           #
+# 4.) Install git.                                         #
+# 5.) Clone https://github.com/puppetlabs/exercise-webpage #
+# 6.) Backup the current default index.html file.          #
+# 7.) Update the default index.html file.                  #
+# 8.) Update file context of new index.html file.          #
+# 9.) Configure nginx server to start on system reboot.    #
+# 10.) Start nginx server.                                 #
+#                                                          #
 ############################################################
 # Gather a list of Hosts to run this script against.       #
 ############################################################
