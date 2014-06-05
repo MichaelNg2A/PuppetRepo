@@ -24,6 +24,14 @@ if [ $? -ne 0 ] ; then
 fi
 
 ############################################################
+# Update iptables to allow port 8000/tcp                   #
+# inbound and make it persistent across reboots.           #
+############################################################
+ssh $HOST "iptables -I INPUT -p tcp --dport=8000 -j ACCEPT"
+ssh $HOST "service iptables save"
+ssh $HOST "service iptables restart"
+
+############################################################
 # Check to see if git is installed and install if not.     #
 ############################################################
 ssh $HOST "rpm -qa | egrep -i ^git" 2>&1 >/dev/null
