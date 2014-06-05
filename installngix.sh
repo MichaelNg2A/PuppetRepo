@@ -22,6 +22,9 @@
 # 9.) Configure nginx server to start on system reboot.    #
 # 10.) Start nginx server.                                 #
 #                                                          #
+# Note:  This script requires that you have ssh public     #
+# keys for root access installed on all targeted hosts.    #
+#                                                          #
 ############################################################
 # Gather a list of Hosts to run this script against.       #
 ############################################################
