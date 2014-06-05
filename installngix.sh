@@ -24,27 +24,36 @@ if [ $? -ne 0 ] ; then
 fi
 
 ############################################################
-# Update iptables to allow port 8000/tcp                   #
-# inbound and make it persistent across reboots.           #
+# Check to see if iptables is configured to allow          #
+# port 8000/tcp inbound, update iptables and make it       #
+# persistent across reboots if the rule is not there.      #
 ############################################################
-ssh $HOST "iptables -I INPUT -p tcp --dport=8000 -j ACCEPT"
-ssh $HOST "service iptables save"
-ssh $HOST "service iptables restart"
+ssh $HOST "iptables-save | egrep -i INPUT | egrep -i tcp | egrep -i 'dport 8000' | egrep -i accept" 2>&1 >/dev/null
+if [ $? -ne 0 ] ; then
+	ssh $HOST "iptables -I INPUT -p tcp --dport=8000 -j ACCEPT"
+	ssh $HOST "service iptables save"
+	ssh $HOST "service iptables restart"
+fi
 
 ############################################################
 # Check to see if git is installed and install if not.     #
 ############################################################
 ssh $HOST "rpm -qa | egrep -i ^git" 2>&1 >/dev/null
-if [ $? -eq 0 ] ; then
-		echo "git is already installed on $HOST"
-	else
-		ssh $HOST "yum --assumeyes install git"
+if [ $? -ne 0 ] ; then
+	ssh $HOST "yum --assumeyes install git"
 fi
 
 ############################################################
 # Clone Exercises from PuppetLabs Repo.                    #
 ############################################################
 ssh $HOST "git clone https://github.com/puppetlabs/exercise-webpage"
+
+############################################################
+# Check to see if the desired html file is already in      #
+# place and backup, copy, change context if not.           #
+############################################################
+ssh $HOST "diff exercise-webpage/index.html /usr/share/nginx/html/index.html" 2>&1 >/dev/null
+if [ $? -ne 0 ] ; then
 
 ############################################################
 # Rename the original default Nginx index.html file.       #
@@ -61,20 +70,29 @@ ssh $HOST "cp exercise-webpage/index.html /usr/share/nginx/html/index.html"
 ############################################################
 ssh $HOST "chcon -R --reference=/usr/share/nginx/html/index.html.orig /usr/share/nginx/html/index.html"
 
+fi
+
 ############################################################
 # Clean up the Puppet Labs Clone created Directory.        #
 ############################################################
 ssh $HOST "rm -R exercise-webpage"
 
 ############################################################
-# Make sure Nginx comes up on reboot.                      #
+# Check that Nginx is configured to                        #
+# start on reboot and correct if necessary.                #
 ############################################################
-ssh $HOST "chkconfig nginx on"
+ssh $HOST "chkconfig nginx" 2>&1 >/dev/null
+if [ $? -ne 0 ] ; then
+	ssh $HOST "chkconfig nginx on"
+fi
 
 ############################################################
-# Manually start up Nginx the first time.                  #
+# Verify that Nginx is running and start up if not.        #
 ############################################################
-ssh $HOST "service nginx start"
+ssh $HOST "service nginx status" 2>&1 >/dev/null
+if [ $? -ne 0 ] ; then
+	ssh $HOST "service nginx start"
+fi
 
 ############################################################
 # Temporary install of lynx to verify that page is up.     #
