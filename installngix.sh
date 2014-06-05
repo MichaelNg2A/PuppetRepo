@@ -116,9 +116,4 @@ if [ $? -ne 0 ] ; then
 	ssh $HOST "service nginx start"
 fi
 
-############################################################
-# Temporary install of lynx to verify that page is up.     #
-############################################################ 
-ssh $HOST "yum --assumeyes install lynx"
-
 done
