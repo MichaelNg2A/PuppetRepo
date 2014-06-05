@@ -1,4 +1,4 @@
-FirstRepo
+PuppetRepo
 =========
 
-My First GitHub Repo
+Puppet GitHub Repo
